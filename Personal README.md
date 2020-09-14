@@ -25,6 +25,6 @@ In order to successfully and cleanly launch Open Pose, one has to do two steps:
 	
 3. Once everything is done and set up, only launching and testing remains;
 	Run a test for Pose Detection in images ('python run.py --model=mobilenet_thin --image=./images/p1.jpg')  [Note: The images are located in /tf-pose-estimation/images]
-	Run a test for Pose Detection in video ('python run.py --model=mobilenet_thin --video=./images/<insert video name and type>')
+	Run a test for Pose Detection in video ('python run_video.py --model=mobilenet_thin --video=./images/<insert video name and type>')
 	Run a test for Pose Detection in a webcam ('python run_webcam.py --model=mobilenet_thin --camera=0')
 	Run a test for Pose Detection in a webcam with TensoRT ('python run_webcam.py --model=mobilenet_thin --camera=0 --tensorrt=True')
