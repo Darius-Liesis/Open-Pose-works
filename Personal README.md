@@ -10,7 +10,7 @@ In order to successfully and cleanly launch Open Pose, one has to do two steps:
 
 	Next, the environment needed to be filled with the appropriate tools (the env_name should be seen next to file path);
 	Install python (I used Python 3.7.6 for this, so 'conda install python=3.7.6');
-	Install tensorflow ('conda install tensorflow'. WARNING: If TensorFlow 2 is too advanced for the code, use 'conda install tensorflow=1.4.1');
+	Install tensorflow ('conda install tensorflow'. WARNING: If TensorFlow 2 is too advanced for the code, use 'conda install tensorflow=1.14');
 	Install OpenCV ('conda install opencv'. If that does not work, 'conda install opencv-python');
 	Clone the Open Pose Git repository to the machine (For that, use the Prompt to 'cd <path>' into the desired folder, and execute 'git clone https://www.github.com/ildoonet/tf-pose-estimation' ); 
 	Execute setup.py (For that, go to the cloned repository with 'cd <path>/tf-pose-estimation' and execute the setup with 'python setup.py install');
