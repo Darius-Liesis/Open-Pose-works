@@ -1,6 +1,7 @@
 import argparse
 import logging
 import time
+import os
 
 import cv2
 import numpy as np
@@ -33,17 +34,24 @@ if __name__ == '__main__':
     w, h = model_wh(args.resolution)
     e = TfPoseEstimator(get_graph_path(args.model), target_size=(w, h))
     cap = cv2.VideoCapture(args.video)
-
+    
+    count = 0
     if cap.isOpened() is False:
         print("Error opening video stream or file")
+    
     while cap.isOpened():
-        ret_val, image = cap.read()
-
-        humans = e.inference(image)
+        ret_val, image = cap.read()    #Reads the file from the video one frame at a time.
+        
+        #Writes the file into a JPEG, then calls the run.py file to process it.
+        cv2.imwrite(r'C:\Users\Administrator\Documents\GitHub\Open-Pose-works\images\video_images\frame%d.jpg' %count, image)
+        os.system('python run.py --model=mobilenet_thin --image=./images/video_results/frame%d.jpg' %count)
+        count += 1
+        
+        #humans = e.inference(image)
         if not args.showBG:
             image = np.zeros(image.shape)
-        image = TfPoseEstimator.draw_humans(image, humans, imgcopy=False)
-
+        #image = TfPoseEstimator.draw_humans(image, humans, imgcopy=False)
+        
         cv2.putText(image, "FPS: %f" % (1.0 / (time.time() - fps_time)), (10, 10),  cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
         cv2.imshow('tf-pose-estimation result', image)
         fps_time = time.time()
