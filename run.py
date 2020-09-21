@@ -30,7 +30,6 @@ if __name__ == '__main__':
                              'default=0x0, Recommends : 432x368 or 656x368 or 1312x736 ')
     parser.add_argument('--resize-out-ratio', type=float, default=4.0,
                         help='if provided, resize heatmaps before they are post-processed. default=1.0')
-
     args = parser.parse_args()
 
     w, h = model_wh(args.resize)
@@ -39,28 +38,22 @@ if __name__ == '__main__':
     else:
         e = TfPoseEstimator(get_graph_path(args.model), target_size=(w, h))
     
-    
     # estimate human poses from a single image !
     image = common.read_imgfile(args.image, None, None)
     if image is None:
         logger.error('Image can not be read, path=%s' % args.image)
         sys.exit(-1)
-    else: 
-        print(args.image)
 
     numbers = re.findall(r'\d+', args.image)
     count = int(numbers[0])
-    print("count has a type of ", type(count), "and a value of ", count)
     
     t = time.time()
     humans = e.inference(image, resize_to_default=(w > 0 and h > 0), upsample_size=args.resize_out_ratio)
     elapsed = time.time() - t
-    print("humans has a ", type(humans), "type, and a value of ", humans)
     logger.info('inference image: %s in %.4f seconds.' % (args.image, elapsed))
 
     
-    image = TfPoseEstimator.draw_humans(image, humans, imgcopy=False)
-    
+    image = TfPoseEstimator.draw_humans(image, humans, imgcopy=False) 
     cv2.imwrite(r'C:\Users\Administrator\Documents\GitHub\Open-Pose-works\images\image_results\frame%d_result.jpg' %count, image)
 
     try:
@@ -96,7 +89,7 @@ if __name__ == '__main__':
         # plt.imshow(CocoPose.get_bgimg(inp, target_size=(vectmap.shape[1], vectmap.shape[0])), alpha=0.5)
        #plt.imshow(tmp2_even, cmap=plt.cm.gray, alpha=0.5)
        #plt.colorbar()
-       #plt.show()
+        plt.show()
     except Exception as e:
         logger.warning('matplitlib error, %s' % e)
         cv2.imshow('result', image)
