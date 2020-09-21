@@ -2,6 +2,7 @@ import argparse
 import logging
 import sys
 import time
+import re
 
 from tf_pose import common
 import cv2
@@ -37,13 +38,20 @@ if __name__ == '__main__':
         e = TfPoseEstimator(get_graph_path(args.model), target_size=(432, 368))
     else:
         e = TfPoseEstimator(get_graph_path(args.model), target_size=(w, h))
-
+    
+    
     # estimate human poses from a single image !
     image = common.read_imgfile(args.image, None, None)
     if image is None:
         logger.error('Image can not be read, path=%s' % args.image)
         sys.exit(-1)
+    else: 
+        print(args.image)
 
+    numbers = re.findall(r'\d+', args.image)
+    count = int(numbers[0])
+    print("count has a type of ", type(count), "and a value of ", count)
+    
     t = time.time()
     humans = e.inference(image, resize_to_default=(w > 0 and h > 0), upsample_size=args.resize_out_ratio)
     elapsed = time.time() - t
@@ -52,6 +60,8 @@ if __name__ == '__main__':
 
     
     image = TfPoseEstimator.draw_humans(image, humans, imgcopy=False)
+    
+    cv2.imwrite(r'C:\Users\Administrator\Documents\GitHub\Open-Pose-works\images\image_results\frame%d_result.jpg' %count, image)
 
     try:
         import matplotlib.pyplot as plt
