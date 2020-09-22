@@ -329,7 +329,7 @@ class TfPoseEstimator:
 
         self.graph = tf.get_default_graph()
         tf.import_graph_def(graph_def, name='TfPoseEstimator')
-        self.persistent_sess = tf.Session(graph=self.graph, config=tf_config)
+        self.persistent_sess = tf.Session(graph=self.graph, config=tf_config)    #Defines a tensorflow session using the added graph and configuration file
 
         for ts in [n.name for n in tf.get_default_graph().as_graph_def().node]:
             print(ts)
@@ -532,26 +532,27 @@ class TfPoseEstimator:
         else:
             return cropped
 
-    def inference(self, npimg, resize_to_default=True, upsample_size=1.0):
+    def inference(self, npimg, resize_to_default=True, upsample_size=1.0):    #npimp is a num.py tensor array of the image;   resize_to_default sets a default size for the output;   upsample_size
+        
         if npimg is None:
-            raise Exception('The image is not valid. Please check your image exists.')
+            raise Exception('The image is not valid. Please check your image exists.')    #Checks if an image tensor has been provided and contains values
 
         if resize_to_default:
-            upsample_size = [int(self.target_size[1] / 8 * upsample_size), int(self.target_size[0] / 8 * upsample_size)]
+            upsample_size = [int(self.target_size[1] / 8 * upsample_size), int(self.target_size[0] / 8 * upsample_size)]    #target_size[0] - width, target_size[1] - height,
         else:
-            upsample_size = [int(npimg.shape[0] / 8 * upsample_size), int(npimg.shape[1] / 8 * upsample_size)]
+            upsample_size = [int(npimg.shape[0] / 8 * upsample_size), int(npimg.shape[1] / 8 * upsample_size)]   #takes the shape values [0], [1] for width and height instead
 
-        if self.tensor_image.dtype == tf.quint8:
+        if self.tensor_image.dtype == tf.quint8:   #Checks if the tensor_image is the same as a Quantized 8-bit Unsigned integer.
             # quantize input image
-            npimg = TfPoseEstimator._quantize_img(npimg)
+            npimg = TfPoseEstimator._quantize_img(npimg)    #Then the image is quantized 
             pass
 
         logger.debug('inference+ original shape=%dx%d' % (npimg.shape[1], npimg.shape[0]))
         img = npimg
         if resize_to_default:
-            img = self._get_scaled_img(npimg, None)[0][0]
-        peaks, heatMat_up, pafMat_up = self.persistent_sess.run(
-            [self.tensor_peaks, self.tensor_heatMat_up, self.tensor_pafMat_up], feed_dict={
+            img = self._get_scaled_img(npimg, None)[0][0] 
+        peaks, heatMat_up, pafMat_up = self.persistent_sess.run(     #calls the iniciated session
+            [self.tensor_peaks, self.tensor_heatMat_up, self.tensor_pafMat_up], feed_dict={    #creates a three-member array of tensor_peaks, tensor_heatMat_up and tensor_pafMat_up 
                 self.tensor_image: [img], self.upsample_size: upsample_size
             })
         peaks = peaks[0]
