@@ -42,6 +42,7 @@ def write_coco_json(human, image_w, image_h):
             continue
         body_part = human.body_parts[coco_id]
         keypoints.extend([round_int(body_part.x * image_w), round_int(body_part.y * image_h), 2])
+        print(keypoints[coco_id])
     return keypoints
 
 
@@ -51,7 +52,7 @@ if __name__ == '__main__':
     parser.add_argument('--resize-out-ratio', type=float, default=8.0, help='if provided, resize heatmaps before they are post-processed. default=8.0')
     parser.add_argument('--model', type=str, default='cmu', help='cmu / mobilenet_thin / mobilenet_v2_large')
     parser.add_argument('--cocoyear', type=str, default='2014')
-    parser.add_argument('--coco-dir', type=str, default='/data/public/rw/coco/')
+    parser.add_argument('--coco-dir', type=str, default='/data/public/rw/coco/')   
     parser.add_argument('--data-idx', type=int, default=-1)
     parser.add_argument('--multi-scale', type=bool, default=False)
     args = parser.parse_args()
@@ -65,6 +66,7 @@ if __name__ == '__main__':
 
     image_dir = args.coco_dir + 'val%s/' % args.cocoyear
     coco_json_file = args.coco_dir + 'annotations/person_keypoints_val%s.json' % args.cocoyear
+    print("The coco file path, is ", coco_json_file)
     cocoGt = COCO(coco_json_file)
     catIds = cocoGt.getCatIds(catNms=['person'])
     keys = cocoGt.getImgIds(catIds=catIds)
@@ -115,6 +117,7 @@ if __name__ == '__main__':
             }
             result.append(item)
             scores += item['score']
+            print("The keypoints are: ", item['keypoints'])
 
         avg_score = scores / len(humans) if len(humans) > 0 else 0
         tqdm_keys.set_postfix(OrderedDict({'inference time': elapsed, 'score': avg_score}))
@@ -149,7 +152,9 @@ if __name__ == '__main__':
             plt.colorbar()
 
             plt.show()
-
+    
+    #write_json = "C:/Users/Administrator/Documents/GitHub/Open-Pose-works/Coco_data/cocotext.txt"
+            
     fp = open(write_json, 'w')
     json.dump(result, fp)
     fp.close()

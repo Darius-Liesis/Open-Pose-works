@@ -7,6 +7,7 @@ import cv2
 import numpy as np
 import tensorflow as tf
 import time
+import os, json
 
 from tf_pose import common
 from tf_pose.common import CocoPart
@@ -352,23 +353,29 @@ class TfPoseEstimator:
         max_pooled_in_tensor = tf.nn.pool(gaussian_heatMat, window_shape=(3, 3), pooling_type='MAX', padding='SAME')
         self.tensor_peaks = tf.where(tf.equal(gaussian_heatMat, max_pooled_in_tensor), gaussian_heatMat,
                                      tf.zeros_like(gaussian_heatMat))
-
+        
         self.heatMat = self.pafMat = None
 
         # warm-up
+        #Writes down the results into a file
+        path = r"C:/Users/Administrator/Documents/GitHub/Open-Pose-works/tensor_data/tensor.txt"
+        assert os.path.isfile(path)
+        f = open(path, 'w')
+
         self.persistent_sess.run(tf.variables_initializer(
             [v for v in tf.global_variables() if
              v.name.split(':')[0] in [x.decode('utf-8') for x in
                                       self.persistent_sess.run(tf.report_uninitialized_variables())]
              ])
         )
-        self.persistent_sess.run(
+        f.write(self.persistent_sess.run(
             [self.tensor_peaks, self.tensor_heatMat_up, self.tensor_pafMat_up],
             feed_dict={
                 self.tensor_image: [np.ndarray(shape=(target_size[1], target_size[0], 3), dtype=np.float32)],
                 self.upsample_size: [target_size[1], target_size[0]]
             }
-        )
+        ))
+        f.close()
         self.persistent_sess.run(
             [self.tensor_peaks, self.tensor_heatMat_up, self.tensor_pafMat_up],
             feed_dict={
@@ -383,6 +390,16 @@ class TfPoseEstimator:
                 self.upsample_size: [target_size[1] // 4, target_size[0] // 4]
             }
         )
+        
+    #Converts the Tensor result list into a string    
+    def listToString(s):  
+        # initialize an empty string 
+        str1 = ""   
+        # traverse in the string   
+        for ele in s:  
+            str1 += ele   
+        # return string   
+        return str1 
 
         # logs
         if self.tensor_image.dtype == tf.quint8:
@@ -532,7 +549,7 @@ class TfPoseEstimator:
         else:
             return cropped
 
-    def inference(self, npimg, resize_to_default=True, upsample_size=1.0):    #npimp is a num.py tensor array of the image;   resize_to_default sets a default size for the output;   upsample_size
+    def inference(self, npimg, resize_to_default=True, upsample_size=1.0):    #npimp is a num.py tensor array of the image;   resize_to_default sets a default size for the output;  upsample_size
         
         if npimg is None:
             raise Exception('The image is not valid. Please check your image exists.')    #Checks if an image tensor has been provided and contains values
@@ -553,7 +570,7 @@ class TfPoseEstimator:
             img = self._get_scaled_img(npimg, None)[0][0] 
         peaks, heatMat_up, pafMat_up = self.persistent_sess.run(     #calls the iniciated session
             [self.tensor_peaks, self.tensor_heatMat_up, self.tensor_pafMat_up], feed_dict={    #creates a three-member array of tensor_peaks, tensor_heatMat_up and tensor_pafMat_up 
-                self.tensor_image: [img], self.upsample_size: upsample_size
+                self.tensor_image: [img], self.upsample_size: upsample_size     
             })
         peaks = peaks[0]
         self.heatMat = heatMat_up[0]
