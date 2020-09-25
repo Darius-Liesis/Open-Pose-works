@@ -423,10 +423,9 @@ class TfPoseEstimator:
         
         print("THE NAME OF THE IMAGE IS", image_name)
         
-        #path = r"C:/Users/Administrator/Documents/GitHub/Open-Pose-works/images/image/point.txt"        
-        #open(path, 'w').close()     #Empties the file before writing data
-        
-        #f = open(path, 'a')      #Opens the clean file to append values into it.
+        path = r"C:/Users/Administrator/Documents/GitHub/Open-Pose-works/images/image_data/%s.txt" %image_name 
+        print(path)
+        f = open(path, 'w+')    #Opens the clean file to append values into it. 
         
         for human in humans:
             # draw point <-- These are the points that are drawn in humans 
@@ -441,7 +440,7 @@ class TfPoseEstimator:
                 #print("Width is ", centers[i][0], ", Height is ", centers[i][1], ", of coordinate ", i)
                 
                 #Writes down the results into a file
-                #f.write("Width is " + str(centers[i][0]) + ", Height is " + str(centers[i][1]) + ", of coordinate " + str(i) + "\n")                
+                f.write(str(centers[i][0]) + "," + str(centers[i][1]) + "\n")                
                 
                 cv2.circle(npimg, center, 3, common.CocoColors[i], thickness=3, lineType=8, shift=0)
 
@@ -454,7 +453,7 @@ class TfPoseEstimator:
                 # npimg = cv2.line(npimg, centers[pair[0]], centers[pair[1]], common.CocoColors[pair_order], 3)
                 cv2.line(npimg, centers[pair[0]], centers[pair[1]], common.CocoColors[pair_order], 3)
         
-        #f.close()
+        f.close()
         return npimg
 
     def _get_scaled_img(self, npimg, scale):
