@@ -45,7 +45,8 @@ if __name__ == '__main__':
         ret_val, image = cap.read()    #Reads the file from the video one frame at a time.
         
         #Writes the file into a JPEG, then calls the run.py file to process it.
-        cv2.imwrite(r'C:/Users/Administrator/Documents/GitHub/Open-Pose-works/images/video_images/frame%d.jpg' %count, image)
+        cv2.imwrite(r'C:/Users/Administrator/Documents/GitHub/Open-Pose-works/images/image_data/frame%d.jpg' %count, image)
+        image_name = str("frame%d.jpg" %count) 
         #os.system('python run.py --model=mobilenet_thin --image=./images/video_images/frame%d.jpg' %count)
         
         #t = time.time()
@@ -56,8 +57,8 @@ if __name__ == '__main__':
         
         if not args.showBG:
             image = np.zeros(image.shape)
-        image = TfPoseEstimator.draw_humans(image, humans, imgcopy=False)
-        cv2.imwrite(r'C:\Users\Administrator\Documents\GitHub\Open-Pose-works\images\image_results\frame%d_result.jpg' %count, image)
+        image = TfPoseEstimator.draw_humans(image_name, image, humans, imgcopy=False)
+        #cv2.imwrite(r'C:\Users\Administrator\Documents\GitHub\Open-Pose-works\images\image_results\frame%d_result.jpg' %count, image)
     
         count += 1
         
