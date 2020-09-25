@@ -46,11 +46,14 @@ if __name__ == '__main__':
 
     numbers = re.findall(r'\d+', args.image)
     count = int(numbers[0])
+    image_name = os.path.basename(args.image)
+    print("THE NAME OF THE IMAGE IS", image_name)
     
     t = time.time()
     humans = e.inference(image, resize_to_default=(w > 0 and h > 0), upsample_size=args.resize_out_ratio)
     elapsed = time.time() - t
     logger.info('inference image: %s in %.4f seconds.' % (args.image, elapsed))
+    
 
     
     image = TfPoseEstimator.draw_humans(image, humans, imgcopy=False) 

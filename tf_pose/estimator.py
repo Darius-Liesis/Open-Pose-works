@@ -358,7 +358,7 @@ class TfPoseEstimator:
 
         # warm-up
         #Writes down the results into a file
-        path = r"C:/Users/Administrator/Documents/GitHub/Open-Pose-works/tensor_data/tensor.txt"
+        path = r"C:/Users/Administrator/Documents/GitHub/Open-Pose-works/images/image_tensor_data/tensor.txt"
         assert os.path.isfile(path)
         f = open(path, 'w')
 
@@ -368,14 +368,18 @@ class TfPoseEstimator:
                                       self.persistent_sess.run(tf.report_uninitialized_variables())]
              ])
         )
-        f.write(self.persistent_sess.run(
+        a = self.persistent_sess.run(
             [self.tensor_peaks, self.tensor_heatMat_up, self.tensor_pafMat_up],
             feed_dict={
                 self.tensor_image: [np.ndarray(shape=(target_size[1], target_size[0], 3), dtype=np.float32)],
                 self.upsample_size: [target_size[1], target_size[0]]
             }
-        ))
+        )
+        
+        tensor = ''.join(str(e) for e in a)     #Converts the Tensor result list into a string 
+        f.write(tensor)
         f.close()
+        
         self.persistent_sess.run(
             [self.tensor_peaks, self.tensor_heatMat_up, self.tensor_pafMat_up],
             feed_dict={
@@ -389,17 +393,7 @@ class TfPoseEstimator:
                 self.tensor_image: [np.ndarray(shape=(target_size[1], target_size[0], 3), dtype=np.float32)],
                 self.upsample_size: [target_size[1] // 4, target_size[0] // 4]
             }
-        )
-        
-    #Converts the Tensor result list into a string    
-    def listToString(s):  
-        # initialize an empty string 
-        str1 = ""   
-        # traverse in the string   
-        for ele in s:  
-            str1 += ele   
-        # return string   
-        return str1 
+        )    
 
         # logs
         if self.tensor_image.dtype == tf.quint8:
@@ -427,8 +421,16 @@ class TfPoseEstimator:
             npimg = np.copy(npimg)
         image_h, image_w = npimg.shape[:2]
         centers = {}
+        
+        path = r"C:/Users/Administrator/Documents/GitHub/Open-Pose-works/images/image/point.txt"
+        assert os.path.isfile(path)
+        
+        open(path, 'w').close()     #Empties the file before writing data
+        
+        f = open(path, 'a')      #Opens the clean file to append values into it.
+        
         for human in humans:
-            # draw point
+            # draw point <-- These are the points that are drawn in humans 
             for i in range(common.CocoPart.Background.value):
                 if i not in human.body_parts.keys():
                     continue
@@ -436,16 +438,23 @@ class TfPoseEstimator:
                 body_part = human.body_parts[i]
                 center = (int(body_part.x * image_w + 0.5), int(body_part.y * image_h + 0.5))
                 centers[i] = center
+               
+                #print("Width is ", centers[i][0], ", Height is ", centers[i][1], ", of coordinate ", i)
+                
+                #Writes down the results into a file
+                f.write("Width is " + str(centers[i][0]) + ", Height is " + str(centers[i][1]) + ", of coordinate " + str(i) + "\n")                
                 cv2.circle(npimg, center, 3, common.CocoColors[i], thickness=3, lineType=8, shift=0)
 
-            # draw line
+        
+            # draw line <--- Draws the line between two points drawn in the function before
             for pair_order, pair in enumerate(common.CocoPairsRender):
                 if pair[0] not in human.body_parts.keys() or pair[1] not in human.body_parts.keys():
                     continue
 
                 # npimg = cv2.line(npimg, centers[pair[0]], centers[pair[1]], common.CocoColors[pair_order], 3)
                 cv2.line(npimg, centers[pair[0]], centers[pair[1]], common.CocoColors[pair_order], 3)
-
+        
+        f.close()
         return npimg
 
     def _get_scaled_img(self, npimg, scale):
