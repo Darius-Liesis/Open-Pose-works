@@ -243,7 +243,7 @@ class Human:
         return self.__str__()
 
 
-class BodyPart:
+class BodyPart:     #NOTE: Check later for bodypart coordinates
     """
     part_idx : part index(eg. 0 for nose)
     x, y: coordinate of body part
@@ -358,9 +358,8 @@ class TfPoseEstimator:
 
         # warm-up
         #Writes down the results into a file
-        path = r"C:/Users/Administrator/Documents/GitHub/Open-Pose-works/images/image_tensor_data/tensor.txt"
-        assert os.path.isfile(path)
-        f = open(path, 'w')
+        #path = r"C:/Users/Administrator/Documents/GitHub/Open-Pose-works/images/image_tensor_data/tensor.txt"
+        #f = open(path, 'w')
 
         self.persistent_sess.run(tf.variables_initializer(
             [v for v in tf.global_variables() if
@@ -377,8 +376,8 @@ class TfPoseEstimator:
         )
         
         tensor = ''.join(str(e) for e in a)     #Converts the Tensor result list into a string 
-        f.write(tensor)
-        f.close()
+        #f.write(tensor)
+        #f.close()
         
         self.persistent_sess.run(
             [self.tensor_peaks, self.tensor_heatMat_up, self.tensor_pafMat_up],
@@ -416,18 +415,18 @@ class TfPoseEstimator:
         return npimg_q
 
     @staticmethod
-    def draw_humans(npimg, humans, imgcopy=False):
+    def draw_humans(image_name, npimg, humans, imgcopy=False):
         if imgcopy:
             npimg = np.copy(npimg)
         image_h, image_w = npimg.shape[:2]
         centers = {}
         
-        path = r"C:/Users/Administrator/Documents/GitHub/Open-Pose-works/images/image/point.txt"
-        assert os.path.isfile(path)
+        print("THE NAME OF THE IMAGE IS", image_name)
         
-        open(path, 'w').close()     #Empties the file before writing data
+        #path = r"C:/Users/Administrator/Documents/GitHub/Open-Pose-works/images/image/point.txt"        
+        #open(path, 'w').close()     #Empties the file before writing data
         
-        f = open(path, 'a')      #Opens the clean file to append values into it.
+        #f = open(path, 'a')      #Opens the clean file to append values into it.
         
         for human in humans:
             # draw point <-- These are the points that are drawn in humans 
@@ -442,7 +441,8 @@ class TfPoseEstimator:
                 #print("Width is ", centers[i][0], ", Height is ", centers[i][1], ", of coordinate ", i)
                 
                 #Writes down the results into a file
-                f.write("Width is " + str(centers[i][0]) + ", Height is " + str(centers[i][1]) + ", of coordinate " + str(i) + "\n")                
+                #f.write("Width is " + str(centers[i][0]) + ", Height is " + str(centers[i][1]) + ", of coordinate " + str(i) + "\n")                
+                
                 cv2.circle(npimg, center, 3, common.CocoColors[i], thickness=3, lineType=8, shift=0)
 
         
@@ -454,7 +454,7 @@ class TfPoseEstimator:
                 # npimg = cv2.line(npimg, centers[pair[0]], centers[pair[1]], common.CocoColors[pair_order], 3)
                 cv2.line(npimg, centers[pair[0]], centers[pair[1]], common.CocoColors[pair_order], 3)
         
-        f.close()
+        #f.close()
         return npimg
 
     def _get_scaled_img(self, npimg, scale):

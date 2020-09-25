@@ -3,6 +3,7 @@ import logging
 import sys
 import time
 import re
+import os
 
 from tf_pose import common
 import cv2
@@ -47,7 +48,6 @@ if __name__ == '__main__':
     numbers = re.findall(r'\d+', args.image)
     count = int(numbers[0])
     image_name = os.path.basename(args.image)
-    print("THE NAME OF THE IMAGE IS", image_name)
     
     t = time.time()
     humans = e.inference(image, resize_to_default=(w > 0 and h > 0), upsample_size=args.resize_out_ratio)
@@ -56,7 +56,7 @@ if __name__ == '__main__':
     
 
     
-    image = TfPoseEstimator.draw_humans(image, humans, imgcopy=False) 
+    image = TfPoseEstimator.draw_humans(image_name, image, humans, imgcopy=False) 
     cv2.imwrite(r'C:\Users\Administrator\Documents\GitHub\Open-Pose-works\images\image_results\frame%d_result.jpg' %count, image)
 
     try:
