@@ -46,7 +46,7 @@ if __name__ == '__main__':
         
         #Writes the file into a JPEG, then calls the run.py file to process it.
         cv2.imwrite(r'C:/Users/Administrator/Documents/GitHub/Open-Pose-works/images/image_data/frame%d.jpg' %count, image)
-        image_name = str("frame%d.jpg" %count) 
+        image_name = str("frame%d" %count) 
         #os.system('python run.py --model=mobilenet_thin --image=./images/video_images/frame%d.jpg' %count)
         
         #t = time.time()

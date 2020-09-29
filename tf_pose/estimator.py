@@ -357,28 +357,20 @@ class TfPoseEstimator:
         self.heatMat = self.pafMat = None
 
         # warm-up
-        #Writes down the results into a file
-        #path = r"C:/Users/Administrator/Documents/GitHub/Open-Pose-works/images/image_tensor_data/tensor.txt"
-        #f = open(path, 'w')
-
         self.persistent_sess.run(tf.variables_initializer(
             [v for v in tf.global_variables() if
              v.name.split(':')[0] in [x.decode('utf-8') for x in
                                       self.persistent_sess.run(tf.report_uninitialized_variables())]
              ])
         )
-        a = self.persistent_sess.run(
+        self.persistent_sess.run(
             [self.tensor_peaks, self.tensor_heatMat_up, self.tensor_pafMat_up],
             feed_dict={
                 self.tensor_image: [np.ndarray(shape=(target_size[1], target_size[0], 3), dtype=np.float32)],
                 self.upsample_size: [target_size[1], target_size[0]]
             }
         )
-        
-        tensor = ''.join(str(e) for e in a)     #Converts the Tensor result list into a string 
-        #f.write(tensor)
-        #f.close()
-        
+                
         self.persistent_sess.run(
             [self.tensor_peaks, self.tensor_heatMat_up, self.tensor_pafMat_up],
             feed_dict={
@@ -421,11 +413,9 @@ class TfPoseEstimator:
         image_h, image_w = npimg.shape[:2]
         centers = {}
         
-        print("THE NAME OF THE IMAGE IS", image_name)
+        print("Currently analyzing ", image_name, "...")
         
         path = r"C:/Users/Administrator/Documents/GitHub/Open-Pose-works/images/image_data/%s.txt" %image_name 
-        print(path)
-        f = open(path, 'w+')    #Opens the clean file to append values into it. 
         
         for human in humans:
             # draw point <-- These are the points that are drawn in humans 
@@ -439,8 +429,11 @@ class TfPoseEstimator:
                
                 #print("Width is ", centers[i][0], ", Height is ", centers[i][1], ", of coordinate ", i)
                 
-                #Writes down the results into a file
-                f.write(str(centers[i][0]) + "," + str(centers[i][1]) + "\n")                
+                #Writes down the results into a file, IF any were found
+                if (center):
+                    f = open(path, 'w+')    #Opens the clean file to append values into it. 
+                    f.write(str(centers[i][0]) + "," + str(centers[i][1]) + "\n")    
+                    f.close()
                 
                 cv2.circle(npimg, center, 3, common.CocoColors[i], thickness=3, lineType=8, shift=0)
 
@@ -453,7 +446,6 @@ class TfPoseEstimator:
                 # npimg = cv2.line(npimg, centers[pair[0]], centers[pair[1]], common.CocoColors[pair_order], 3)
                 cv2.line(npimg, centers[pair[0]], centers[pair[1]], common.CocoColors[pair_order], 3)
         
-        f.close()
         return npimg
 
     def _get_scaled_img(self, npimg, scale):

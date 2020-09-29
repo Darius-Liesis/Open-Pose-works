@@ -20,29 +20,10 @@ formatter = logging.Formatter('[%(asctime)s] [%(name)s] [%(levelname)s] %(messag
 ch.setFormatter(formatter)
 logger.addHandler(ch)
 
-#Creates a list of files and sub directories
-def getListOfFiles(dirName):
-     
-    #Names in the given directory 
-    listOfFile = os.listdir(dirName)
-    allFiles = list()
-    #Loops through all entries
-    for entry in listOfFile:
-        #Creates a full path
-        fullPath = os.path.join(dirName, entry)
-        #If entry is a directory then get the list of files in this directory 
-        if os.path.isdir(fullPath):
-            allFiles = allFiles + getListOfFiles(fullPath)
-        else:
-            allFiles.append(fullPath)
-                
-    return allFiles   
-
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='tf-pose-estimation run')
-    parser.add_argument('--image_dir', type=str, default='./images/')     #User Input for the folder where all the images are located
+    parser.add_argument('--image_dir', type=str, default='./images/image_data')     #User Input for the folder where all the images are located
     parser.add_argument('--image', type=str, default='./images/p1.jpg')
     parser.add_argument('--model', type=str, default='cmu',
                         help='cmu / mobilenet_thin / mobilenet_v2_large / mobilenet_v2_small')
@@ -59,35 +40,18 @@ if __name__ == '__main__':
     else:
         e = TfPoseEstimator(get_graph_path(args.model), target_size=(w, h))
     
-    #Code that reads image data existing in an entire directory
-    image_array = getListOfFiles(args.image_dir)
-    
-    im = []
-    #Loops through the ammount of images counter in the directory
-    for elem in image_array:
-        
-        count = 0
-        # estimate human poses from a single image !
-        image = common.read_imgfile(elem, None, None)
-        if image is None:
-            logger.error('Image can not be read, path=%s' % args.image)
-            sys.exit(-1)
-  
-        #Write the image into the image_data directory
-        image_name = os.path.basename(elem)
-        cv2.imwrite(r'C:\Users\Administrator\Documents\GitHub\Open-Pose-works\images\image_data\%s' %image_name, image)
-        
-   # numbers = re.findall(r'\d+', args.image)
-   # count = int(numbers[0])
-    
-        t = time.time()
-        humans = e.inference(image, resize_to_default=(w > 0 and h > 0), upsample_size=args.resize_out_ratio)
-        elapsed = time.time() - t
-        logger.info('inference image: %s in %.4f seconds.' % (args.image, elapsed))
-        im.append(TfPoseEstimator.draw_humans(image_name, image, humans, imgcopy=False)) 
-        image = im[0]     #Assigning the new value to the old default
-        
-    #cv2.imwrite(r'C:\Users\Administrator\Documents\GitHub\Open-Pose-works\images\image_results\frame%d_result.jpg' %count, image)
+
+    # estimate human poses from a single image !
+    image = common.read_imgfile(elem, None, None)
+    if image is None:
+        logger.error('Image can not be read, path=%s' % args.image)
+        sys.exit(-1)
+
+    t = time.time()
+    humans = e.inference(image, resize_to_default=(w > 0 and h > 0), upsample_size=args.resize_out_ratio)
+    elapsed = time.time() - t
+    logger.info('inference image: %s in %.4f seconds.' % (args.image, elapsed))
+    image = TfPoseEstimator.draw_humans(image_name, image, humans, imgcopy=False) 
 
     try:
         import matplotlib.pyplot as plt
@@ -122,7 +86,7 @@ if __name__ == '__main__':
         # plt.imshow(CocoPose.get_bgimg(inp, target_size=(vectmap.shape[1], vectmap.shape[0])), alpha=0.5)
        #plt.imshow(tmp2_even, cmap=plt.cm.gray, alpha=0.5)
        #plt.colorbar()
-        #plt.show()
+        plt.show()
     except Exception as e:
         logger.warning('matplitlib error, %s' % e)
         cv2.imshow('result', image)
